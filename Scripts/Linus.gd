@@ -51,6 +51,28 @@ func _physics_process(delta):
 	lastpos = position
 	move_along_path(Settings.mine_enemy_speed * delta)
 
+func _kil():
+	health = 0
+	destroyed = true
+	explosion.play()
+	set_process(false)
+	emit_signal("destroyed", false)
+	get_node("CollisionShape2D").queue_free()
+	yield(get_tree().create_timer(1.5), "timeout")
+	queue_free()
+
+func _hurt(damage):
+	if !destroyed:
+		if health > 1:
+			hurt_sound.play()
+		if health > 0:
+			sprite.frame = 1
+			yield(get_tree().create_timer(0.1), "timeout")
+			sprite.frame = 0
+			health -= damage
+		if health <= 0:
+			_kil()
+
 func _place_mine():
 	var mine = mine_scene.instance()
 	mine.position = position
@@ -95,3 +117,8 @@ func _on_Area2D_body_entered(body):
 			#yield(get_tree().create_timer(1.5), "timeout")
 			# Queue for deletion in the next frame when health == 0
 			queue_free()
+
+
+func _on_Area2D_area_entered(area):
+	if "ExplosionRadius" in area.name:
+		_hurt(10)

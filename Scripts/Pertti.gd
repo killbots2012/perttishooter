@@ -115,6 +115,7 @@ func _on_Area2D_body_entered(body):
 		_hurt(10)
 
 func _on_Area2D_area_entered(area):
+	print(area.name)
 	if "Mine" in area.name:
 		_hurt(10)
 		area.get_node("AnimatedSprite").visible = true
@@ -122,5 +123,5 @@ func _on_Area2D_area_entered(area):
 		area.get_node("Sprite").queue_free()
 		yield(get_tree().create_timer(0.7), "timeout")
 		area.queue_free()
-	elif "ExplosionRadius" in area.name:
+	if "ExplosionRadius" in area.name:
 		_hurt(10)

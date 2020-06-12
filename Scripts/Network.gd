@@ -1,5 +1,7 @@
 extends Node
 
+var pertti_scene = preload("res://Scenes/Pertti.tscn")
+
 const DEFAULT_IP = '127.0.0.1'
 const DEFAULT_PORT = 31400
 const MAX_PLAYERS = 5
@@ -56,11 +58,10 @@ remote func _request_players(request_from_id):
 
 remote func _send_player_info(id, info):
 	players[id] = info
-	var new_player = load('res://player/Player.tscn').instance()
-	new_player.name = str(id)
-	new_player.set_network_master(id)
-	$'/root/Level/'.add_child(new_player)
-	new_player.init(info.name, info.position, true)
+	var new_player = pertti_scene.instance()
+	new_player.position = $'/root/Level/Tower'.position
+	new_player.name = id
+	$'/root/Level'.add_child(new_player)
 
 func update_position(id, position):
 	players[id].position = position

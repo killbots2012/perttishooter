@@ -71,22 +71,16 @@ func _ready():
 	get_viewport().connect("size_changed", self, "_on_viewport_size_changed")
 
 func spawn_enemies():
-	if !gameover and enemies_spawnable and !round_interval:
-		
+	if !gameover and enemies_spawnable and !round_interval and get_tree().is_network_server():
 		rng.randomize()
+		rpc("_spawn_enemy", rng.randi_range(0,7))
 		
-		_spawn_enemy(rng.randi_range(0,7))
-		
-		#if !tower_destroyed and rng.randi_range(0,99) < Settings.tower_enemy_probability:
-		#	_spawn_tower_enemy(rng.randi_range(0,7))
-		#else:
-		#	_spawn_enemy(rng.randi_range(0,7))
-
 func spawn_tower_enemies():
-	rng.randomize()
-	_spawn_tower_enemy(rng.randi_range(0,7))
-	rng.randomize()
-	_spawn_linus(rng.randi_range(0,7))
+	if get_tree().is_network_server():
+		rng.randomize()
+		_spawn_tower_enemy(rng.randi_range(0,7))
+		rng.randomize()
+		_spawn_linus(rng.randi_range(0,7))
 
 func set_visibility():
 	skip_free_time_button.visible = false
@@ -114,7 +108,7 @@ func create_timers():
 	round_timer.set_wait_time(Settings.round_time)
 	round_timer.set_one_shot(false)
 	round_timer.start()
-	
+
 	score_timer = Timer.new()
 	add_child(score_timer)
 	score_timer.connect("timeout", self, "_increase_score")
@@ -153,19 +147,21 @@ func _spawn_pertti():
 	pertti = pertti_scene.instance()
 	pertti.position = tower.position
 	pertti.name = str(get_tree().get_network_unique_id())
+	print(pertti.name)
 	pertti.set_network_master(get_tree().get_network_unique_id())
 	add_child(pertti)
 
-func _spawn_enemy(spawn_point):
+sync func _spawn_enemy(spawn_point):
 	# Instance the enemy from preloaded scene
 	var enemy = enemy_scene.instance()
-	# Set sel_spawn_point variable to the spawn point chosen
 	var sel_spawn_point = spawn_points[spawn_point]
-	# Set enemies position based on sel_spawn_point
+	enemy.init(get_tree().is_network_server())
 	enemy.position = sel_spawn_point.position
 	add_child(enemy)
+	print("rpc received")
 	# Pass reference to pertti to the enemy
-	enemy.set_pertti_ref(pertti)
+	if get_tree().is_network_server():
+		enemy.set_pertti_ref(pertti)
 
 func _spawn_tower_enemy(spawn_point):
 	# Instance the enemy from preloaded scene
@@ -256,7 +252,7 @@ func _on_Enemy_destroyed(tower_enemy : bool):
 	coin_label.text = "Coins:" + str(Settings.coins)
 
 func _on_Shop_body_entered(body):
-	if "Pertti" in body.name:
+	if str(get_tree().get_network_unique_id()) in body.name:
 		print("Shop entered")
 		shop_panel.visible = true
 
@@ -272,6 +268,7 @@ func _on_RestartButton_pressed():
 	get_tree().reload_current_scene()
 
 func _on_Pertti_respawn():
+	yield(get_tree().create_timer(0.1), "timeout")
 	_spawn_pertti()
 	print("respawned")
 	respawn_label.visible = false
@@ -301,7 +298,7 @@ func _on_viewport_size_changed():
 	set_positions()
 
 func _on_Area2D_body_exited(body):
-	if "Pertti" in body.name:
+	if str(get_tree().get_network_unique_id()) in body.name:
 		shop_panel.visible = false
 
 func _on_CoreHealthAdd_pressed():

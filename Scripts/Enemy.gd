@@ -10,6 +10,7 @@ onready var sprite = $Sprite
 var can_update = false
 var pertti_in_sight = false
 var destroyed = false
+var operate
 
 # Signals
 signal destroyed
@@ -21,6 +22,9 @@ var path
 var pertti
 var path_update_timer
 var path_length_to_pertti = 0 #set to 0 to force path calculation at start and because it crashes otherwise
+
+func init(is_server : bool):
+	operate = is_server
 
 func _ready():
 	connect("destroyed", get_parent(), "_on_Enemy_destroyed")
@@ -40,9 +44,12 @@ func _process(delta):
 	look_at(pertti.position)
 	
 func _physics_process(delta):
-	update_path_timer()
-	check_if_pertti_in_sight()
-	move_or_slide()
+	if operate:
+		update_path_timer()
+		#check_if_pertti_in_sight()
+		move_or_slide()
+	if !operate and !pertti_in_sight:
+		move_along_path(Settings.enemy_speed * 0.02)
 
 func move_or_slide():
 	if !pertti_in_sight and health != 0:
@@ -52,6 +59,12 @@ func move_or_slide():
 		var start_point = position
 		var direction = (pertti.position - position).normalized()
 		move_and_slide(direction * Settings.enemy_speed)
+
+remote func move_enemy(new_path : PoolVector2Array, new_pertti_in_sight : bool):
+	path = new_path
+	print(path)
+	pertti_in_sight = new_pertti_in_sight
+	set_process(true)
 
 func check_if_pertti_in_sight():
 	if position.distance_to(pertti.position) <= Settings.close_proximity_follow_distance:
@@ -120,7 +133,7 @@ func update_path():
 	#print("Path updating")
 	# Recalculate the path
 	path = nav_2d.get_simple_path(position, pertti.position)
-	
+	rpc("move_enemy", path, pertti_in_sight)
 	
 	#recalculate the length of the route to pertti
 	path_length_to_pertti = 0
@@ -131,10 +144,13 @@ func update_path():
 		path_length_to_pertti =  Settings.minimum_path_delay / Settings.update_delay_factor
 
 func _on_Pertti_gameover():
+	rpc("_destroy")
+
+sync func _destroy():
 	queue_free()
 
 func _on_free_time():
-	queue_free()
+	rpc("_destroy")
 
 func _kil():
 	health = 0
@@ -154,8 +170,8 @@ func _hurt(damage):
 			sprite.frame = 1
 			yield(get_tree().create_timer(0.1), "timeout")
 			sprite.frame = 0
-			health -= 1
-		if health == 0:
+			health -= damage
+		if health <= 0:
 			_kil()
 
 func _on_Area2D_body_entered(body):
@@ -163,3 +179,13 @@ func _on_Area2D_body_entered(body):
 	if "Bullet" in body.name:
 		_hurt(Settings.bullet_damage)
 
+func _on_Collision_area_entered(area):
+	if "Mine" in area.name:
+		_hurt(10)
+		area.get_node("AnimatedSprite").visible = true
+		area.get_node("AnimatedSprite").play()
+		area.get_node("Sprite").queue_free()
+		yield(get_tree().create_timer(0.7), "timeout")
+		area.queue_free()
+	if "ExplosionRadius" in area.name:
+		_hurt(10)

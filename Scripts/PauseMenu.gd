@@ -31,7 +31,6 @@ func inputs():
 		resume_button.visible = true
 		volume_button.visible = true
 		get_tree().paused = true
-		yield(get_tree().create_timer(1), "timeout")
 	elif Input.is_action_just_pressed("pause") and get_tree().paused:
 		pause_label.visible = false
 		quit_button.visible = false
@@ -59,6 +58,7 @@ func _on_ResumeButton_pressed():
 	quit_button.visible = false
 	main_menu_button.visible = false
 	resume_button.visible = false
+	volume_button.visible = false
 	get_tree().paused = false
 
 func _on_viewport_size_changed():

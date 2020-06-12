@@ -22,24 +22,35 @@ var moving = false
 var invinsibility = false
 var gameover = false
 var can_fire = true
+var dummy
 
 # Others
 var health = Settings.pertti_health
 var movement = Vector2()
 
+func init(is_dummy : bool):
+	dummy = is_dummy
+
 func _ready():
+	if dummy:
+		$Camera2D.current = false
 	connections()
 	initial_invulnerability()
 
 func _physics_process(delta):
-	# Run _move if !gameover
-	if !gameover:
-		look_at(get_global_mouse_position())
-	if !gameover:
-		_move()
-	# Run _fire if !gameover
-	if Input.is_action_pressed("fire") and can_fire and !gameover:
-			_fire()
+	if !dummy:
+		if !gameover:
+			look_at(get_global_mouse_position())
+		if !gameover:
+			_move()
+		# Run _fire if !gameover
+		if Input.is_action_pressed("fire") and can_fire and !gameover:
+			rpc("_fire")
+		rpc("move_pertti", position, rotation)
+	
+remote func move_pertti(new_pos, new_rot):
+	position = new_pos
+	rotation = new_rot
 
 func initial_invulnerability():
 	sprite.visible = true
@@ -53,7 +64,7 @@ func connections():
 	connect("gameover", get_parent(), "_on_Pertti_gameover")
 	connect("respawn", get_parent(), "_on_Pertti_respawn")
 
-func _fire():
+sync func _fire():
 	# Create an instance based on a preloaded scene, then set its pos and rotation and apply an impulse
 	fireball.play()
 	var bullet_instance = bullet.instance()
@@ -83,7 +94,8 @@ func _move():
 	movement = Vector2(0,0)
 
 func _kil():
-	# To prevent confused confusing confusery when the ui health counter goes negative
+	if dummy:
+		return# To prevent confused confusing confusery when the ui health counter goes negative
 	health = 0
 	emit_signal("damage_taken", health)
 	explosion.play()

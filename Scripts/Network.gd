@@ -7,10 +7,11 @@ const DEFAULT_PORT = 31400
 const MAX_PLAYERS = 5
 
 var players = { }
-var self_data = { name = '', position = Vector2(360, 180) }
+var self_data = { health = Settings.pertti_health, coins = 0}
 
 signal player_disconnected
 signal server_disconnected
+signal player_connected
 
 func _ready():
 	get_tree().connect('network_peer_disconnected', self, '_on_player_disconnected')
@@ -19,6 +20,7 @@ func _ready():
 func create_server(player_nickname):
 	self_data.name = player_nickname
 	players[1] = self_data
+	print(players.keys())
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_server(DEFAULT_PORT, MAX_PLAYERS)
 	get_tree().set_network_peer(peer)
@@ -34,6 +36,7 @@ func connect_to_server(player_nickname):
 func _connected_to_server():
 	var local_player_id = get_tree().get_network_unique_id()
 	players[local_player_id] = self_data
+	print(players.keys())
 	rpc('_send_player_info', local_player_id, self_data)
 	print("Joined server")
 
@@ -58,10 +61,4 @@ remote func _request_players(request_from_id):
 
 remote func _send_player_info(id, info):
 	players[id] = info
-	var new_player = pertti_scene.instance()
-	new_player.position = $'/root/Level/Tower'.position
-	new_player.name = id
-	$'/root/Level'.add_child(new_player)
-
-func update_position(id, position):
-	players[id].position = position
+	emit_signal("player_connected", id)

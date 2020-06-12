@@ -48,8 +48,7 @@ func _physics_process(delta):
 		update_path_timer()
 		#check_if_pertti_in_sight()
 		move_or_slide()
-	if !operate and !pertti_in_sight:
-		move_along_path(Settings.enemy_speed * 0.02)
+		rpc("move_enemy", position, rotation)
 
 func move_or_slide():
 	if !pertti_in_sight and health != 0:
@@ -60,11 +59,9 @@ func move_or_slide():
 		var direction = (pertti.position - position).normalized()
 		move_and_slide(direction * Settings.enemy_speed)
 
-remote func move_enemy(new_path : PoolVector2Array, new_pertti_in_sight : bool):
-	path = new_path
-	print(path)
-	pertti_in_sight = new_pertti_in_sight
-	set_process(true)
+remote func move_enemy(new_pos, new_rot):
+	position = new_pos
+	rotation = new_rot
 
 func check_if_pertti_in_sight():
 	if position.distance_to(pertti.position) <= Settings.close_proximity_follow_distance:
@@ -162,7 +159,7 @@ func _kil():
 	yield(get_tree().create_timer(1.5), "timeout")
 	queue_free()
 
-func _hurt(damage):
+sync func _hurt(damage):
 	if !destroyed:
 		if health > 1:
 			hurt_sound.play()
@@ -177,15 +174,15 @@ func _hurt(damage):
 func _on_Area2D_body_entered(body):
 	# Check if a bullet has entered area, if so reduce health
 	if "Bullet" in body.name:
-		_hurt(Settings.bullet_damage)
+		rpc("_hurt", Settings.bullet_damage)
 
 func _on_Collision_area_entered(area):
 	if "Mine" in area.name:
-		_hurt(10)
+		rpc("_hurt", 10)
 		area.get_node("AnimatedSprite").visible = true
 		area.get_node("AnimatedSprite").play()
 		area.get_node("Sprite").queue_free()
 		yield(get_tree().create_timer(0.7), "timeout")
 		area.queue_free()
 	if "ExplosionRadius" in area.name:
-		_hurt(10)
+		rpc("_hurt", 10)

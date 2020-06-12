@@ -73,6 +73,7 @@ func _ready():
 	
 func _on_player_connected(id):
 	rpc_id(id, "_spawn_dummy_pertti", get_tree().get_network_unique_id())
+	_spawn_local_dummy_pertti(id)
 
 func spawn_enemies():
 	if !gameover and enemies_spawnable and !round_interval and get_tree().is_network_server():
@@ -154,6 +155,15 @@ func _spawn_pertti(id):
 	pertti.init(false)
 	print(pertti.name)
 	add_child(pertti)
+
+func _spawn_local_dummy_pertti(id):
+	pertti = pertti_scene.instance()
+	pertti.position = tower.position
+	pertti.name = str(id)
+	pertti.init(true)
+	print(pertti.name)
+	add_child(pertti)
+	print("dummy pertti spawned")
 
 remote func _spawn_dummy_pertti(id):
 	pertti = pertti_scene.instance()

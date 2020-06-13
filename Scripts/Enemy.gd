@@ -133,7 +133,7 @@ func update_path():
 	var shortest_distance = INF
 	for node in get_parent().get_children():
 		if node.filename == "res://Scenes/Pertti.tscn":
-			var current_distance = node.distance_to(position)
+			var current_distance = node.position.distance_to(position)
 			if current_distance < shortest_distance:
 				shortest_distance = current_distance
 				closest_pertti = node

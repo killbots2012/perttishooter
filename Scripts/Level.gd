@@ -182,9 +182,6 @@ sync func _spawn_enemy(spawn_point):
 	enemy.position = sel_spawn_point.position
 	add_child(enemy)
 	print("rpc received")
-	# Pass reference to pertti to the enemy
-	if get_tree().is_network_server():
-		enemy.set_pertti_ref(pertti)
 
 sync func _spawn_tower_enemy(spawn_point):
 	# Instance the enemy from preloaded scene
@@ -314,6 +311,7 @@ func _on_Pertti_gameover():
 			respawn_label.text = "Respawning In:" + str(Settings.respawn_delay - i)
 			yield(get_tree().create_timer(1), "timeout")
 		respawn_label.visible = false
+		enemies_spawnable = true
 		
 		#pertti.animation.play("Invinsibility")
 	elif tower_destroyed:

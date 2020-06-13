@@ -34,6 +34,7 @@ func _ready():
 	set_process(false)
 	rng.randomize()
 	path_update_timer = rng.randf_range(0, Settings.max_first_path_delay)
+	set_closest_pertti_ref()
 	
 	set_pertti_timer = Timer.new()
 	add_child(set_pertti_timer)

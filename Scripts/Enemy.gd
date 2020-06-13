@@ -22,6 +22,7 @@ var path
 var pertti
 var path_update_timer
 var path_length_to_pertti = 0 #set to 0 to force path calculation at start and because it crashes otherwise
+var set_pertti_timer
 
 func init(is_server : bool):
 	operate = is_server
@@ -33,6 +34,13 @@ func _ready():
 	set_process(false)
 	rng.randomize()
 	path_update_timer = rng.randf_range(0, Settings.max_first_path_delay)
+	
+	set_pertti_timer = Timer.new()
+	add_child(set_pertti_timer)
+	set_pertti_timer.connect("timeout", self, "set_closest_pertti_ref")
+	set_pertti_timer.set_wait_time(Settings.check_for_other_pertti_time)
+	set_pertti_timer.set_one_shot(false) # Make sure it loops
+	set_pertti_timer.start()
 
 func _process(delta):
 	# Look at pertti, looks  t h i c c
@@ -120,15 +128,7 @@ func set_pertti_ref(value):
 	# Start _process function and start moving on the path
 	set_process(true)
 
-func pertti_moved_listener():
-	can_update = true
-
-func update_path():
-	# Check if the can update timer has expired, as if this didnt exist the performance would be horrible all time pertto moves
-	#if can_update:
-	# Restart the timer
-	#print("Path updating")
-	# Recalculate the path
+func set_closest_pertti_ref():
 	var closest_pertti
 	var shortest_distance = INF
 	for node in get_parent().get_children():
@@ -138,6 +138,16 @@ func update_path():
 				shortest_distance = current_distance
 				closest_pertti = node
 	set_pertti_ref(closest_pertti)
+
+func pertti_moved_listener():
+	can_update = true
+
+func update_path():
+	# Check if the can update timer has expired, as if this didnt exist the performance would be horrible all time pertto moves
+	#if can_update:
+	# Restart the timer
+	#print("Path updating")
+	# Recalculate the path
 	
 	path = nav_2d.get_simple_path(position, pertti.position)
 	rpc("move_enemy", path, pertti_in_sight)

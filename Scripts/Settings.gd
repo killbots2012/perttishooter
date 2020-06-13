@@ -22,6 +22,7 @@ var update_delay_factor = 0.05 #factor which the length of the route to pertti f
 var close_proximity_follow_distance = 300
 var tower_enemy_spawn_interval = 10
 var core_enemy_explosion_time = 5
+var check_for_other_pertti_time = 1 #time after which to recheck for close perttis
 
 # Level control logic related variables
 var warning_flash_interval = 0.08

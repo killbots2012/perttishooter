@@ -95,7 +95,8 @@ func _move():
 
 func _kil():
 	if dummy:
-		return# To prevent confused confusing confusery when the ui health counter goes negative
+		return
+	# To prevent confused confusing confusery when the ui health counter goes negative
 	health = 0
 	emit_signal("damage_taken", health)
 	explosion.play()

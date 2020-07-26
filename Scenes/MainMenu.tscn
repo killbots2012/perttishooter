@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://Scripts/MainMenu.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Fonts/font.tres" type="DynamicFont" id=2]
@@ -7,10 +7,8 @@
 [ext_resource path="res://Assets/Textures/knob.png" type="Texture" id=5]
 [ext_resource path="res://Assets/Fonts/prstartk.ttf" type="DynamicFontData" id=6]
 [ext_resource path="res://Assets/Textures/perttishooter_logo.png" type="Texture" id=7]
-[ext_resource path="res://Assets/Textures/Sprites/boolet.png" type="Texture" id=8]
-[ext_resource path="res://Assets/Textures/Sprites/core_destroyer1.png" type="Texture" id=9]
-
-[sub_resource type="Theme" id=8]
+[ext_resource path="res://Assets/Textures/Sprites/core_destroyer1.png" type="Texture" id=8]
+[ext_resource path="res://Assets/Textures/Sprites/boolet.png" type="Texture" id=9]
 
 [sub_resource type="DynamicFont" id=1]
 size = 30
@@ -461,11 +459,10 @@ font_data = ExtResource( 6 )
 [node name="MainMenu" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = -1.0
-margin_top = 2.0
-margin_right = -3.0
-margin_bottom = -234.0
-theme = SubResource( 8 )
+margin_left = -2.82843
+margin_top = 18.3848
+margin_right = -2.82837
+margin_bottom = 18.3848
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -536,7 +533,7 @@ theme = SubResource( 2 )
 custom_styles/slider = SubResource( 3 )
 custom_styles/grabber_area_highlight = SubResource( 4 )
 custom_styles/grabber_area = SubResource( 5 )
-min_value = -30.0
+min_value = -80.0
 max_value = 24.0
 __meta__ = {
 "_edit_use_anchors_": false
@@ -568,22 +565,20 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="MainMenu-Image" type="Sprite" parent="."]
+[node name="Sprite" type="Sprite" parent="."]
 show_behind_parent = true
-use_parent_material = true
-position = Vector2( 952.289, 493.969 )
-scale = Vector2( 5.41223, 2.83585 )
+position = Vector2( 966.277, 490.646 )
+scale = Vector2( 5.417, 2.77531 )
 texture = ExtResource( 7 )
 
-[node name="bullet" type="Sprite" parent="MainMenu-Image"]
-position = Vector2( 47.5963, -59.4403 )
-scale = Vector2( 0.579724, 0.709179 )
+[node name="Sprite" type="Sprite" parent="Sprite"]
+position = Vector2( 68.1315, -127.829 )
+rotation = -2.53945
+scale = Vector2( 0.647486, 0.631145 )
 texture = ExtResource( 8 )
 
-[node name="Sprite" type="Sprite" parent="MainMenu-Image"]
-position = Vector2( 116.235, -95.1919 )
-rotation = -2.0944
-scale = Vector2( 0.694444, 0.639623 )
+[node name="Sprite" type="Sprite" parent="Sprite/Sprite"]
+position = Vector2( -9.9501, -94.2279 )
 texture = ExtResource( 9 )
 [connection signal="pressed" from="PlayButton" to="." method="_on_PlayButton_pressed"]
 [connection signal="pressed" from="QuitButton" to="." method="_on_QuitButton_pressed"]

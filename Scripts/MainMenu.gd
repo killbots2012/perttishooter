@@ -22,5 +22,3 @@ func _on_ToolButton_toggled(button_pressed):
 		$GlowButton/ToolButton.text = "Disabled"
 	else:
 		$GlowButton/ToolButton.text = "Enabled"
-
-

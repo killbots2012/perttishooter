@@ -1,0 +1,85 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://Scripts/Pertti.gd" type="Script" id=1]
+[ext_resource path="res://Assets/Textures/Sprites/pertti1_pistol.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Audio/gunshot.wav" type="AudioStream" id=3]
+[ext_resource path="res://Assets/Audio/hurt.wav" type="AudioStream" id=4]
+[ext_resource path="res://Assets/Audio/explosion.wav" type="AudioStream" id=5]
+[ext_resource path="res://Assets/Textures/flashlight.png" type="Texture" id=6]
+[ext_resource path="res://Assets/Textures/red_circle.png" type="Texture" id=7]
+[ext_resource path="res://Assets/Textures/Sprites/pertti1_pistol_hurt.png" type="Texture" id=8]
+
+[sub_resource type="Animation" id=1]
+resource_name = "Invinsibility"
+length = 1.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true ]
+}
+
+[node name="Pertti" type="KinematicBody2D"]
+script = ExtResource( 1 )
+
+[node name="BulletPoint" type="Node2D" parent="."]
+position = Vector2( 48.9998, 0 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PoolVector2Array( -32, 0, -24, -24, -2.64972, -28.0467, 16, -16, 32, 0, 16, 16, -0.881943, 28.1683, -24, 24, -32, 0 )
+
+[node name="Sprite" type="Sprite" parent="."]
+rotation = 1.5708
+z_index = 1
+texture = ExtResource( 2 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+zoom = Vector2( 0.8, 0.8 )
+smoothing_enabled = true
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
+polygon = PoolVector2Array( -36.2373, 0.591091, -26.6913, -26.2789, -4.06393, -31.2287, 16.7957, -19.915, 36.2411, -0.469566, 19.6241, 16.8545, 0.532257, 30.6431, -25.6307, 27.8147, -36.2373, 0.944645 )
+
+[node name="Fireball" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 3 )
+
+[node name="Hurt" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 4 )
+
+[node name="Explosion" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 5 )
+attenuation = 0.0490365
+
+[node name="Invinsibility" type="AnimationPlayer" parent="."]
+anims/Invinsibility = SubResource( 1 )
+
+[node name="Light2D" type="Light2D" parent="."]
+rotation = 1.5708
+scale = Vector2( 2, 2 )
+texture = ExtResource( 6 )
+offset = Vector2( 0, -130 )
+texture_scale = 0.25
+color = Color( 0.87451, 0.929412, 0.929412, 1 )
+shadow_enabled = true
+
+[node name="red_circle" type="Sprite" parent="Light2D"]
+visible = false
+position = Vector2( -6.49244, -150.547 )
+texture = ExtResource( 7 )
+
+[node name="Light2D2" type="Light2D" parent="."]
+rotation = 1.5708
+texture = ExtResource( 8 )
+energy = 1.1
+mode = 2
+[connection signal="area_entered" from="Area2D" to="." method="_on_Area2D_area_entered"]
+[connection signal="body_entered" from="Area2D" to="." method="_on_Area2D_body_entered"]
